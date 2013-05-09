@@ -280,7 +280,7 @@ border-bottom-color: #999;
 	position:relative;
 }
 .wrapper-search {
-	padding:0px 100px 5px 100px
+	padding: 25px 100px 5px 100px;
 }
 .main .box-text{
 	background:#2b2d32 url("../img/icons/icon-search.png") 5px top no-repeat;
@@ -1047,13 +1047,13 @@ code {
     background-color: #2ecc71;
 }
 .onstage:hover{
-    background-color: green;
+    background-color: #27AE60;
 }
 .turnoff{
 	background-color: #e74c3c;
 }
 .turnoff:hover{
-    background-color: red;
+    background-color: #C0392B;
 }
 
 .subscriberContainer{
@@ -1121,4 +1121,37 @@ code {
 	left: -10px;
 	width: 1px; 
 	height: 1px;	
+}
+
+.live{
+	width: 182px;
+	font-size: 14px;
+	margin: 0 auto;
+	padding: 5px 5px;
+	padding-left: 10px;
+	background-color: #2ECC71;
+	color: #fff;
+	border:none;
+	border-radius:2px;
+	-moz-border-radius:2px;
+	-webkit-border-radius:2px;
+	-o-border-radius:2px;
+	margin-top: 3px;
+	margin-left: 7px;
+}
+
+.live-big{
+	width: 70%;
+	margin: 0 auto;
+	padding: 5px 5px;
+	background-color: #2ECC71;
+	color: #fff;
+	border: none;
+	border-radius: 2px;
+	-moz-border-radius: 2px;
+	-webkit-border-radius: 2px;
+	-o-border-radius: 2px;
+	float: right;
+	text-align: center;
+	margin-top: -23px;
 }

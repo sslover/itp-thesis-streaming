@@ -53,7 +53,7 @@
         addStream(event.streams[i]);
       }
       if (event.streams.length == 0){
-        onStageID = null;
+        onStageID = "empty";
       }
       //checkStage(); //we need this, but it is called before the listener is updated?
     }
@@ -70,6 +70,7 @@
       for (var streamId in subscribers) {
         removeStream(streamId);
         if (streamId == onStageID){
+          console.log("removing the stage because the person closed their window!");
           console.log("removing the stage!");
           removeStage(streamId);
         }
@@ -117,6 +118,7 @@
     function signalReceivedHandler(event) {
       // we will put a note below their video that they want to come on camera... need to append it to their video box
       var signalUserID = event.fromConnection.connectionId;
+      alert("signal from " + signalUserID);
     }
 
     /*
@@ -134,15 +136,27 @@
       onStageID = event.changedValues["onStageID"];
       console.log(onStageID);
       // if the onstageValue is null and the container exists, then delete the container
-      if (onStageID == null){
-          // $('.onstageContainer').remove();
+      if (onStageID == "empty" || onStageID == null){
+        alert("Got empty onStageID");
+        if ($(".onstageContainer")[0]){
+            $('.onstageContainer').remove();
+          }         
       }
-      else if(onstage =! null) {
+      else if(onStageID != "empty") {
         console.log("Trying to create stage");
         createStage(onStageID);
       }
       // for debugging only
-      //alert("onStageID changed state. Value: " + event.changedValues["onStageID"]);
+      alert("onStageID changed state. Value: " + event.changedValues["onStageID"]);
+
+      /*if (lastOnStageId != onStageID) {
+        lastOnStageId = onStageID;
+      } else {
+        stateManager.addEventListener("changed:onStageID", onStageIDStateChangedHandler);
+      }*/
+      //stateManager.onStageID = null;
+      //stateManager.addEventListener("changed:onStageID", onStageIDStateChangedHandler);
+
     }
 
     //--------------------------------------
@@ -232,12 +246,27 @@
        console.log(container);
         // Clean up the subscriber container
         document.getElementById("stage").removeChild(container);
-        stateManager.set("onStageID", null);
+        stateManager.set("onStageID", "empty");
     }
 
     function makeOnStage(streamId){
-        // set the onStageId to the streamID
-        stateManager.set("onStageID", streamId);
+        // function to set the onStageId to the streamID
+        console.log("makeOnStage called!");
+        //first, we need to see if the stage is already taken up, if so, we need to remove it
+        // to do that, we check to see if the onStageContainer already exists
+        if ($(".onstageContainer")[0]){
+            if(streamId == onStageID){
+              //do nothing, they are already on stage
+              alert("that person is already on stage!");
+            }
+            if(streamId =! onStageID){
+            alert("stage is already taken! remove the person first and re-add");
+            }
+         }   
+        //now we see the onStageId to the new streamId, which will create a new stage
+        else{
+          stateManager.set("onStageID", streamId);
+        }
     }
 
     function forceUnpublishStream(streamId) {
@@ -274,7 +303,7 @@
       moderationControls.innerHTML =
           '<div class="box border-radius-bottom">'
         + '<p>'
-        + '<a class="btn btn-small btn-block onstage" style="margin:5px; float:left;" onclick="javascript:makeOnStage(\'' + stream.streamId + '\')">Make On Stage<\/a><br>'
+        + '<a href="#" class="btn btn-small btn-block onstage" style="margin:5px; float:left;" onclick="javascript:makeOnStage(\'' + stream.streamId + '\')">Make On Stage<\/a><br>'
         + '<a class="btn btn-small btn-block turnoff" style="margin:5px; float:left; margin-top:-12px;" onclick="javascript:forceUnpublishStream(\'' + stream.streamId + '\')">Turn Off Cam<\/a>'
         + '</p>'
         + '</div>';
@@ -298,12 +327,6 @@
       }
     }
 
-    function checkStage(){
-      if (onStageID =! null) {
-        console.log("Trying to create stage in checkstage");
-        createStage(onStageID);
-      }
-    }
 
     function show(id) {
       document.getElementById(id).style.display = 'block';

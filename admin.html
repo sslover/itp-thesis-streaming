@@ -5,9 +5,10 @@
 	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 	<link rel="stylesheet" type="text/css" href="assets/css/bootstrap.min.css">
 	<link type="text/css" rel="stylesheet" href="assets/css/global.css" />
-	<link type="text/css" rel="stylesheet" href="assets/css/color-button.css" />
 	<!-- js Boots_from -->
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+	<script type="text/javascript" src="myplayer/swfobject.js"></script>
+	<script type="text/javascript" src="assets/js/video.js"></script>
     <script src="http://static.opentok.com/v1.1/js/TB.min.js" type="text/javascript" charset="utf-8"></script>
     <script src="assets/js/opentok-admin.js"></script>
 	<!-- end Boots_from -->
@@ -38,26 +39,21 @@
 					<div class="wrapper-search" style="padding-left:5px;">
 						<!--placeholder-video for now-->
 				        <div class="span8 demo-video">
-				          <!--[if !IE]> -->
-				            <video class="video-js" controls
-				              preload="auto" width="640" height="480" poster="assets/img/poster2.png" data-setup="{}">
-				              <source src="http://iurevych.github.com/Flat-UI-videos/big_buck_bunny.mp4" type="video/mp4">
-				              <source src="http://iurevych.github.com/Flat-UI-videos/big_buck_bunny.webm" type="video/webm">
-				            </video>
-				          <!-- <![endif]-->
-
-				          <!--[if IE]>
-				            <video class="video-js" controls
-				              preload="auto" width="620" height="256" poster="http://video-js.zencoder.com/oceans-clip.jpg" data-setup="{}">
-				              <source src="http://video-js.zencoder.com/oceans-clip.mp4" type='video/mp4'/>
-				              <source src="http://video-js.zencoder.com/oceans-clip.webm" type='video/webm'/>
-				            </video>
-				          <![endif]-->
+					        	<!-- video holder -->
+								<div id="mainPlayer"></div>
+								<div style="width: 850px; padding-top: 10px; padding-bottom: 25px;">
+									<div id="thumbPlayer1"></div>
+									<div id="thumbPlayer2"></div>
+									<div id="thumbPlayer3"></div>
+									<div id="thumbPlayer4"></div>
+									<div id="thumbPlayer5"></div>
+								</div>
+					        	<!-- video holder -->
 				        </div> <!-- /video -->
 				       <!--placeholder-video for now-->
 					</div>
 					<ul class="thumbnails thumbnails-horizontal">
-						<li class="span3" style="margin-left: 50px; margin-top: 45px;">
+						<li class="span3" style="margin-left: -50px;">
 							<div id="stage">
 							</div>
 							<h5>Virtual Audience Person</h5>

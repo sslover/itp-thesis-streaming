@@ -8,12 +8,20 @@
     var subscribers = {};
     var onStageID;
     var stateManager;
+    var myStreamId;
 
     var PUBLISHER_WIDTH = 200;
     var PUBLISHER_HEIGHT = 160;
 
     var subscriber_width = 200;
     var subscriber_height = 160;
+
+    $(document).ready(function() {
+      $("#signalLink").hide();
+      $("#onstage_msg").hide();
+      $("#onstage_msg2").hide();
+      $("#unpublishLink").hide();
+  });
 
     // Un-comment either of the following to set automatic logging and exception handling.
     // See the exceptionHandler() method below.
@@ -50,13 +58,12 @@
       stateManager.addEventListener("changed:onStageID", onStageIDStateChangedHandler);
       //if no one is streaming on page load, set onStageId to null
       if (event.streams.length == 0){
-        stateManager.set("onStageID", null);
+        onStageID = "empty";
       }
+      //checkStage(); //we need this, but it is called before the listener is updated?
       // Now possible to start streaming
       document.getElementById("status").innerHTML = 'You are currently not streaming.';
       show("publishLink");
-      hide("unpublishLink");
-      hide("signalLink");
     }
 
     function sessionDisconnectedHandler(event) {
@@ -70,7 +77,10 @@
       // Remove all subscribers
       for (var streamId in subscribers) {
         removeStream(streamId);
-        removeStage(streamId);
+        if (streamId == onStageID){
+          console.log("removing the stage because the person closed their window!");
+          removeStage(streamId);
+        }
       }
     }
 
@@ -105,7 +115,10 @@
           hide("unpublishLink");
         }
         removeStream(event.streams[i].streamId);
-        removeStage(event.streams[i].streamId);  
+        if (event.streams[i].streamId == onStageID){
+          console.log("removing the stage because the person's stream was turned off!");
+          removeStage(event.streams[i].streamId);
+        }  
       }
     }
 
@@ -120,16 +133,23 @@
 
     function onStageIDStateChangedHandler(event) {
       // set the onStageID to the new stream ID
+      console.log("onstage changed!");
       onStageID = event.changedValues["onStageID"];
       console.log(onStageID);
-      if (onStageID == null){
-        // remove the video from the stage
+      // if the onstageValue is null and the container exists, then delete the container
+      if (onStageID == "empty" || onStageID == null){
+        alert("Got empty onStageID");
+        //if there is a stage set-up, remove that
+        if ($(".onstageContainer_audience")[0]){
+            $('.onstageContainer_audience').remove();
+          }         
       }
-      else{
+      else if(onStageID != "empty") {
+        console.log("Trying to create stage");
         createStage(onStageID);
       }
       // for debugging only
-      //alert("onStageID changed state. Value: " + event.changedValues["onStageID"]);
+      alert("onStageID changed state. Value: " + event.changedValues["onStageID"]);
     }
 
     //--------------------------------------
@@ -188,6 +208,10 @@
 
     function createStage(streamId) {
 
+      //if there is already a video on stage, remove that
+
+
+      //now, prepare the video to go onstage
       var container = document.createElement('div');
       container.className = "onstageContainer_audience";
       var containerId = "container_" + streamId;
@@ -201,10 +225,27 @@
       div.style.cssFloat = "top";
       container.appendChild(div);
 
-      console.log(subscribers[streamId]);
+      console.log("in create stage, the streamId is " + streamId);
+      console.log("in create stage, the myStreamId is " + myStreamId);
+      //if the current user is on stage, show them an alert box that they are LIVE
+      if(streamId == myStreamId){
+        $("#onstage_msg").show();
+        $("#onstage_msg2").show();
+      }
       var subscriberProps = {width: PUBLISHER_WIDTH, height: PUBLISHER_HEIGHT, publishAudio: true};
       subscribers[streamId] = session.subscribe(subscribers[streamId].stream, divId, subscriberProps);
     } 
+
+    function removeStage(streamId) {
+       //set the stageID to null, and delete the container
+        var containerId = "container_" + streamId;
+        console.log(containerId);
+        console.log(streamId);
+       var container = document.getElementById(containerId);
+       console.log(container);
+        // Clean up the subscriber container
+        document.getElementById("stage").removeChild(container);
+    }
 
     //--------------------------------------
     //  HELPER METHODS
@@ -212,6 +253,11 @@
 
     //no need to show the subscribe divs, but we do need to subscribe to the created streams
     function addStream(stream) {
+      //first check to see if the incoming stream is the current user's stream
+       if (stream.connection.connectionId == session.connection.connectionId)
+       {
+         myStreamId = stream.streamId;
+       }
       var container = document.createElement('div');
       container.className = "subscriberContainer";
       var containerId = "container_" + stream.streamId;
@@ -230,6 +276,10 @@
     }
 
     function removeStream(streamId) {
+      if (streamId == myStreamId){
+        $("#onstage_msg").hide();
+        $("#onstage_msg2").hide();
+      }
       var subscriber = subscribers[streamId];
       if (subscriber) {
 

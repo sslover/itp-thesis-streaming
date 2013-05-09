@@ -49,13 +49,12 @@
       // on connection, add a new event listener for the onStage component
       stateManager = session.getStateManager();
       stateManager.addEventListener("changed:onStageID", onStageIDStateChangedHandler);
-      for (var i = 0; i < event.streams.length; i++) {
-        addStream(event.streams[i]);
-      }
-      //document.getElementById("myCamera").innerHTML = "";
       //if no one is streaming on page load, set onStageId to null
       if (event.streams.length == 0){
-        stateManager.set("onStageID", null);
+        onStageID = "empty";
+      }
+      for (var i = 0; i < event.streams.length; i++) {
+        addStream(event.streams[i]);
       }
     }
 
@@ -70,6 +69,10 @@
       // Remove all subscribers
       for (var streamId in subscribers) {
         removeStream(streamId);
+        if (streamId == onStageID){
+          console.log("removing the stage because the person closed their window!");
+          removeStage(streamId);
+        }
       }
 
       if (event.reason == "forceDisconnected") {
@@ -101,9 +104,13 @@
           show("publishLink");
           hide("signalLink");
           publisher = null;
-        } else {
-          removeStream(event.streams[i].streamId);
-        }
+        } 
+        else{
+        removeStream(event.streams[i].streamId);}
+        if (event.streams[i].streamId == onStageID){
+          console.log("removing the stage because the person's stream was turned off!");
+          removeStage(event.streams[i].streamId);
+        }  
       }
     }
 
@@ -123,18 +130,23 @@
 
     function onStageIDStateChangedHandler(event) {
       // set the onStageID to the new stream ID
+      console.log("onstage changed!");
       onStageID = event.changedValues["onStageID"];
       console.log(onStageID);
       // if the onstageValue is null and the container exists, then delete the container
-      if (onStageID == null){
-          // $('.onstageContainer').remove();
+      if (onStageID == "empty" || onStageID == null){
+        alert("Got empty onStageID");
+        //if there is a stage set-up, remove that
+        if ($(".mainonstageContainer")[0]){
+            $('.mainonstageContainer').remove();
+          }         
       }
-      else if(onstage =! null) {
+      else if(onStageID != "empty") {
         console.log("Trying to create stage");
         createStage(onStageID);
       }
       // for debugging only
-      //alert("onStageID changed state. Value: " + event.changedValues["onStageID"]);
+      alert("onStageID changed state. Value: " + event.changedValues["onStageID"]);
     }
 
     //--------------------------------------
@@ -201,20 +213,21 @@
       div.style.cssFloat = "top";
       container.appendChild(div);
 
-      var subscriberProps = {width: subscriber_width, height: subscriber_height, publishAudio: false};
-      subscribers[streamId] = session.subscribe(subscribers[streamId].stream, divId, subscriberProps);
+      var subscriberProps = {width: subscriber_width, height: subscriber_height, publishAudio: true};
+      session.subscribe(subscribers[streamId].stream, divId, subscriberProps);
     } 
 
     function removeStage(streamId) {
-      //set the stageID to null, which will delete the container
-      //$('.onstageContainer').remove();
-      stateManager.set("onStageID", null);
+       //set the stageID to null, and delete the container
+        var containerId = "container_" + streamId;
+        console.log(containerId);
+        console.log(streamId);
+       var container = document.getElementById(containerId);
+       console.log(container);
+        // Clean up the subscriber container
+        document.getElementById("mainstage").removeChild(container);
     }
 
-    function makeOnStage(streamId){
-        // set the onStageId to the streamID
-        stateManager.set("onStageID", streamId);
-    }
 
     function forceUnpublishStream(streamId) {
       session.forceUnpublish(subscribers[streamId].stream);
@@ -248,19 +261,6 @@
       subscribers[stream.streamId] = session.subscribe(stream, divId, subscriberProps);
     }
 
-    // function removeStream(streamId) {
-    //   var subscriber = subscribers[streamId];
-    //   if (subscriber) {
-    //     var container = document.getElementById(subscriber.id).parentNode;
-
-    //     session.unsubscribe(subscriber);
-    //     delete subscribers[streamId];
-
-    //     // Clean up the subscriber container
-    //     document.getElementById("subscribers").removeChild(container);
-    //   }
-    // }
-
 
     function removeStream(streamId) {
       var subscriber = subscribers[streamId];
@@ -274,6 +274,7 @@
         document.getElementById("subscribers").removeChild(container);
       }
     }
+
 
     function show(id) {
       document.getElementById(id).style.display = 'block';
