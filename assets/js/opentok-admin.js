@@ -55,7 +55,6 @@
       if (event.streams.length == 0){
         onStageID = "empty";
       }
-      //checkStage(); //we need this, but it is called before the listener is updated?
     }
 
     function sessionDisconnectedHandler(event) {
@@ -137,7 +136,7 @@
       console.log(onStageID);
       // if the onstageValue is null and the container exists, then delete the container
       if (onStageID == "empty" || onStageID == null){
-        alert("Got empty onStageID");
+        //alert("Got empty onStageID");
         if ($(".onstageContainer")[0]){
             $('.onstageContainer').remove();
           }         
@@ -147,7 +146,7 @@
         createStage(onStageID);
       }
       // for debugging only
-      alert("onStageID changed state. Value: " + event.changedValues["onStageID"]);
+      //alert("onStageID changed state. Value: " + event.changedValues["onStageID"]);
 
       /*if (lastOnStageId != onStageID) {
         lastOnStageId = onStageID;
@@ -234,7 +233,7 @@
         + '</div>';
       container.appendChild(moderationControls);
 
-      var subscriberProps = {width: PUBLISHER_WIDTH, height: PUBLISHER_HEIGHT, publishAudio: true};
+      var subscriberProps = {width: PUBLISHER_WIDTH, height: PUBLISHER_HEIGHT, subscribeToAudio: true};
       session.subscribe(subscribers[streamId].stream, divId, subscriberProps);
 }
     function removeStage(streamId) {
@@ -309,7 +308,7 @@
         + '</div>';
       container.appendChild(moderationControls);
 
-      var subscriberProps = {width: PUBLISHER_WIDTH, height: PUBLISHER_HEIGHT, publishAudio: false};
+      var subscriberProps = {width: PUBLISHER_WIDTH, height: PUBLISHER_HEIGHT, subscribeToAudio: false};
       subscribers[stream.streamId] = session.subscribe(stream, divId, subscriberProps);
     }
 

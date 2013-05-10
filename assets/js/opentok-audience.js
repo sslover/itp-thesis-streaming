@@ -8,7 +8,7 @@
     var subscribers = {};
     var onStageID;
     var stateManager;
-    var myStreamId;
+    var myStreamId = 0;
 
     var PUBLISHER_WIDTH = 200;
     var PUBLISHER_HEIGHT = 160;
@@ -53,14 +53,16 @@
     //--------------------------------------
 
     function sessionConnectedHandler(event) {
-      // on connection, add a new event listener for the onStage component
+      // on the addition of 1 stream, add a new event listener for the onStage component
       stateManager = session.getStateManager();
       stateManager.addEventListener("changed:onStageID", onStageIDStateChangedHandler);
+      for (var i = 0; i < event.streams.length; i++) {
+        addStream(event.streams[i]);
+      }
       //if no one is streaming on page load, set onStageId to null
       if (event.streams.length == 0){
         onStageID = "empty";
       }
-      //checkStage(); //we need this, but it is called before the listener is updated?
       // Now possible to start streaming
       document.getElementById("status").innerHTML = 'You are currently not streaming.';
       show("publishLink");
@@ -138,18 +140,21 @@
       console.log(onStageID);
       // if the onstageValue is null and the container exists, then delete the container
       if (onStageID == "empty" || onStageID == null){
-        alert("Got empty onStageID");
+        // alert("Got empty onStageID");
         //if there is a stage set-up, remove that
         if ($(".onstageContainer_audience")[0]){
             $('.onstageContainer_audience').remove();
-          }         
+            $("#onstage_msg").hide();
+            $("#onstage_msg2").hide();  
+          }
+
       }
       else if(onStageID != "empty") {
         console.log("Trying to create stage");
         createStage(onStageID);
       }
       // for debugging only
-      alert("onStageID changed state. Value: " + event.changedValues["onStageID"]);
+      // alert("onStageID changed state. Value: " + event.changedValues["onStageID"]);
     }
 
     //--------------------------------------
@@ -180,7 +185,7 @@
       stubDiv.id = "opentok_publisher";
       parentDiv.appendChild(stubDiv);
 
-      var publisherProps = {width: PUBLISHER_WIDTH, height: PUBLISHER_HEIGHT, publishAudio: false};
+      var publisherProps = {width: PUBLISHER_WIDTH, height: PUBLISHER_HEIGHT, publishAudio: true};
       publisher = TB.initPublisher(apiKey, stubDiv.id, publisherProps);
       session.publish(publisher);
 
@@ -232,19 +237,28 @@
         $("#onstage_msg").show();
         $("#onstage_msg2").show();
       }
-      var subscriberProps = {width: PUBLISHER_WIDTH, height: PUBLISHER_HEIGHT, publishAudio: true};
+      var subscriberProps = {width: PUBLISHER_WIDTH, height: PUBLISHER_HEIGHT, subscribeToAudio: true};
       subscribers[streamId] = session.subscribe(subscribers[streamId].stream, divId, subscriberProps);
     } 
 
     function removeStage(streamId) {
+
        //set the stageID to null, and delete the container
         var containerId = "container_" + streamId;
         console.log(containerId);
         console.log(streamId);
-       var container = document.getElementById(containerId);
-       console.log(container);
+        var container = document.getElementById(containerId);
+        console.log(container);
         // Clean up the subscriber container
         document.getElementById("stage").removeChild(container);
+
+      console.log("in create stage, the streamId is " + streamId);
+      console.log("in create stage, the myStreamId is " + myStreamId);
+        if (streamId == myStreamId){
+          $("#onstage_msg").hide();
+          $("#onstage_msg2").hide();
+      }
+
     }
 
     //--------------------------------------
@@ -271,15 +285,11 @@
       div.style.cssFloat = "top";
       container.appendChild(div);
 
-      var subscriberProps = {width: 0, height: 0, publishAudio: false};
+      var subscriberProps = {width: 0, height: 0, subscribeToAudio: false};
       subscribers[stream.streamId] = session.subscribe(stream, divId, subscriberProps);
     }
 
     function removeStream(streamId) {
-      if (streamId == myStreamId){
-        $("#onstage_msg").hide();
-        $("#onstage_msg2").hide();
-      }
       var subscriber = subscribers[streamId];
       if (subscriber) {
 

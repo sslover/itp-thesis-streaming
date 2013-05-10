@@ -135,7 +135,7 @@
       console.log(onStageID);
       // if the onstageValue is null and the container exists, then delete the container
       if (onStageID == "empty" || onStageID == null){
-        alert("Got empty onStageID");
+        //alert("Got empty onStageID");
         //if there is a stage set-up, remove that
         if ($(".mainonstageContainer")[0]){
             $('.mainonstageContainer').remove();
@@ -146,7 +146,7 @@
         createStage(onStageID);
       }
       // for debugging only
-      alert("onStageID changed state. Value: " + event.changedValues["onStageID"]);
+      //alert("onStageID changed state. Value: " + event.changedValues["onStageID"]);
     }
 
     //--------------------------------------
@@ -213,7 +213,7 @@
       div.style.cssFloat = "top";
       container.appendChild(div);
 
-      var subscriberProps = {width: subscriber_width, height: subscriber_height, publishAudio: true};
+      var subscriberProps = {width: subscriber_width, height: subscriber_height, subscribeToAudio: true};
       session.subscribe(subscribers[streamId].stream, divId, subscriberProps);
     } 
 
@@ -257,7 +257,7 @@
       div.style.cssFloat = "top";
       container.appendChild(div);
 
-      var subscriberProps = {width: PUBLISHER_WIDTH, height: PUBLISHER_HEIGHT, publishAudio: false};
+      var subscriberProps = {width: PUBLISHER_WIDTH, height: PUBLISHER_HEIGHT, subscribeToAudio: false};
       subscribers[stream.streamId] = session.subscribe(stream, divId, subscriberProps);
     }
 
