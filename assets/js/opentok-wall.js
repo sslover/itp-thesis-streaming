@@ -70,7 +70,6 @@
       for (var streamId in subscribers) {
         removeStream(streamId);
         if (streamId == onStageID){
-          console.log("removing the stage because the person closed their window!");
           removeStage(streamId);
         }
       }
@@ -108,7 +107,6 @@
         else{
         removeStream(event.streams[i].streamId);}
         if (event.streams[i].streamId == onStageID){
-          console.log("removing the stage because the person's stream was turned off!");
           removeStage(event.streams[i].streamId);
         }  
       }
@@ -130,9 +128,7 @@
 
     function onStageIDStateChangedHandler(event) {
       // set the onStageID to the new stream ID
-      console.log("onstage changed!");
       onStageID = event.changedValues["onStageID"];
-      console.log(onStageID);
       // if the onstageValue is null and the container exists, then delete the container
       if (onStageID == "empty" || onStageID == null){
         //alert("Got empty onStageID");
@@ -142,7 +138,6 @@
           }         
       }
       else if(onStageID != "empty") {
-        console.log("Trying to create stage");
         createStage(onStageID);
       }
       // for debugging only
@@ -220,10 +215,7 @@
     function removeStage(streamId) {
        //set the stageID to null, and delete the container
         var containerId = "container_" + streamId;
-        console.log(containerId);
-        console.log(streamId);
-       var container = document.getElementById(containerId);
-       console.log(container);
+        var container = document.getElementById(containerId);
         // Clean up the subscriber container
         document.getElementById("mainstage").removeChild(container);
     }
@@ -238,7 +230,6 @@
     //--------------------------------------
 
     function addStream(stream) {
-      console.log(stream.streamId);
       if (stream.connection.connectionId == session.connection.connectionId) {
         show("unpublishLink");
         return;

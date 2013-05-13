@@ -69,8 +69,6 @@
       for (var streamId in subscribers) {
         removeStream(streamId);
         if (streamId == onStageID){
-          console.log("removing the stage because the person closed their window!");
-          console.log("removing the stage!");
           removeStage(streamId);
         }
       }
@@ -97,7 +95,6 @@
       for (var i = 0; i < event.streams.length; i++) {
         removeStream(event.streams[i].streamId);
         if (event.streams[i].streamId == onStageID){
-          console.log("removing the stage!");
           removeStage(event.streams[i].streamId);
         }
         if (event.streams[i].connection.connectionId == session.connection.connectionId &&
@@ -116,8 +113,28 @@
 
     function signalReceivedHandler(event) {
       // we will put a note below their video that they want to come on camera... need to append it to their video box
-      var signalUserID = event.fromConnection.connectionId;
-      alert("signal from " + signalUserID);
+      var signalUserId = event.fromConnection.connectionId;
+      for (var streamId in subscribers) {
+           var currentUser = subscribers[streamId].stream.connection.connectionId;
+           if(signalUserId == currentUser){
+            //then we add the "wants to come on stage message"
+            //first, check to see if a div like this already exists for the user (if so, no need to show again)
+            if ($("#handraised_" + subscribers[streamId].id)[0]){
+                // do nothing - it already exists
+              }
+            else{
+              var container = document.getElementById(subscribers[streamId].id).parentNode;
+              // Create a div to hold the message
+              var moderationControls = document.createElement('div');
+              var containerId = "handraised_" + subscribers[streamId].id;
+              moderationControls.setAttribute("id", containerId);
+              moderationControls.style.cssFloat = "bottom";
+              moderationControls.innerHTML = '<h5 class="live-admin">Wants to come On Stage</h5>';
+              container.appendChild(moderationControls);
+              alert("An audience member wants to come On Stage! User " + signalUserId);
+            }
+          }
+       }
     }
 
     /*
@@ -131,9 +148,7 @@
 
     function onStageIDStateChangedHandler(event) {
       // set the onStageID to the new stream ID
-      console.log("onstage changed!");
       onStageID = event.changedValues["onStageID"];
-      console.log(onStageID);
       // if the onstageValue is null and the container exists, then delete the container
       if (onStageID == "empty" || onStageID == null){
         //alert("Got empty onStageID");
@@ -142,7 +157,6 @@
           }         
       }
       else if(onStageID != "empty") {
-        console.log("Trying to create stage");
         createStage(onStageID);
       }
       // for debugging only
@@ -209,6 +223,7 @@
     }
 
     function createStage(streamId) {
+      //first create the stage holder
       var container = document.createElement('div');
       container.className = "onstageContainer";
       var containerId = "container_" + streamId;
@@ -235,14 +250,19 @@
 
       var subscriberProps = {width: PUBLISHER_WIDTH, height: PUBLISHER_HEIGHT, subscribeToAudio: true};
       session.subscribe(subscribers[streamId].stream, divId, subscriberProps);
+
+      // now that they are on stage, remove the message saying they want to get on stage
+      var currentUser = subscribers[streamId];
+      if (currentUser) {
+        // remove the message
+        $("#handraised_" + currentUser.id).remove();
+      }
 }
+
     function removeStage(streamId) {
        //set the stageID to null, and delete the container
-        var containerId = "container_" + streamId;
-        console.log(containerId);
-        console.log(streamId);
+       var containerId = "container_" + streamId;
        var container = document.getElementById(containerId);
-       console.log(container);
         // Clean up the subscriber container
         document.getElementById("stage").removeChild(container);
         stateManager.set("onStageID", "empty");
@@ -250,7 +270,6 @@
 
     function makeOnStage(streamId){
         // function to set the onStageId to the streamID
-        console.log("makeOnStage called!");
         //first, we need to see if the stage is already taken up, if so, we need to remove it
         // to do that, we check to see if the onStageContainer already exists
         if ($(".onstageContainer")[0]){
@@ -277,7 +296,6 @@
     //--------------------------------------
 
     function addStream(stream) {
-      console.log(stream.streamId);
       if (stream.connection.connectionId == session.connection.connectionId) {
         show("unpublishLink");
         return;
@@ -304,8 +322,7 @@
         + '<p>'
         + '<a href="#" class="btn btn-small btn-block onstage" style="margin:5px; float:left;" onclick="javascript:makeOnStage(\'' + stream.streamId + '\')">Make On Stage<\/a><br>'
         + '<a class="btn btn-small btn-block turnoff" style="margin:5px; float:left; margin-top:-12px;" onclick="javascript:forceUnpublishStream(\'' + stream.streamId + '\')">Turn Off Cam<\/a>'
-        + '</p>'
-        + '</div>';
+        + '</p>';
       container.appendChild(moderationControls);
 
       var subscriberProps = {width: PUBLISHER_WIDTH, height: PUBLISHER_HEIGHT, subscribeToAudio: false};
